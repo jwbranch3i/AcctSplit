@@ -1,0 +1,352 @@
+package application;
+
+import java.text.DecimalFormat;
+import java.util.List;
+
+import dataModel.DB;
+import dataModel.ReadData;
+import dataModel.WriteData;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.event.Event;
+import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TablePosition;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import javafx.util.Callback;
+import table_edit_files.DateEditingCell;
+import table_edit_files.DatePickerCell;
+import table_edit_files.DoubleEditingCell;
+import table_edit_files.EditCell;
+import table_edit_files.MyDatePickerCell;
+import table_edit_files.MyDoubleStringConverter;
+import table_edit_files.TextEditingCell;
+import transactionObjects.Transaction;
+
+public class MainController {
+	@FXML
+	private TableView<Transaction> table;
+
+	@FXML
+	private TableColumn<Transaction, Date> colDate;
+
+	@FXML
+	private TableColumn<Transaction, String> colDescription;
+
+	@FXML
+	private TableColumn<Transaction, Double> colGas;
+
+	@FXML
+	private TableColumn<Transaction, Double> colService;
+
+	@FXML
+	private TableColumn<Transaction, Double> colJohn;
+
+	@FXML
+	private TableColumn<Transaction, Double> colMedical;
+
+	@FXML
+	private TableColumn<Transaction, Double> colMisc;
+
+	@FXML
+	private TableColumn<Transaction, Double> colTotal;
+
+	@FXML
+	private Label totalGas;
+
+	@FXML
+	private Label totalJohn;
+
+	@FXML
+	private Label totalMedical;
+
+	@FXML
+	private Label totalMisc;
+
+	@FXML
+	private Label totalService;
+
+	@FXML
+	private Label totalAcct;
+
+	public void initialize() {
+		// Callback<TableColumn<Transaction, Date>, TableCell<Transaction, Date>> dateCellFactory = (
+		// 		TableColumn<Transaction, Date> param) -> new DateEditingCell();
+		// colDate.setCellValueFactory(cellData -> cellData.getValue().dateProperty());
+		// colDate.setCellFactory(dateCellFactory);
+		// colDate.setOnEditCommit(this::colDate_OnEditCommit);
+
+		// colDate.setCellValueFactory(new PropertyValueFactory<Transaction, Date>("date"));
+		// colDate.setCellFactory(p -> new DatePickerCell<Transaction, Date>(dataList));
+
+        colDate.setCellValueFactory(new PropertyValueFactory<>("date"));
+        colDate.setCellFactory(tc -> new MyDatePickerCell<>());
+		colDate.setOnEditCommit(this::colDate_OnEditCommit);
+
+		colDescription.setCellValueFactory(new PropertyValueFactory<Transaction, String>("description"));
+		colDescription.setCellFactory(TextFieldTableCell.forTableColumn());
+		colDescription.setOnEditCommit(this::colDescription_OnEditCommit);
+
+		colGas.setCellValueFactory(new PropertyValueFactory<Transaction, Double>("gas"));
+		colGas.setCellFactory(EditCell.<Transaction, Double>forTableColumn(new MyDoubleStringConverter()));
+		colGas.setOnEditCommit(this::colGas_OnEditCommit);
+		String columnClass = "cell-with-double-values";
+		colGas.getStyleClass().add(columnClass);
+
+		colService.setCellValueFactory(new PropertyValueFactory<Transaction, Double>("service"));
+		colService.setCellFactory(EditCell.<Transaction, Double>forTableColumn(new MyDoubleStringConverter()));
+		colService.setOnEditCommit(this::colService_OnEditCommit);
+		colService.getStyleClass().add(columnClass);
+
+		colJohn.setCellValueFactory(new PropertyValueFactory<Transaction, Double>("john"));
+		colJohn.setCellFactory(EditCell.<Transaction, Double>forTableColumn(new MyDoubleStringConverter()));
+		colJohn.setOnEditCommit(this::colJohn_OnEditCommit);
+		colJohn.getStyleClass().add(columnClass);
+
+		colMedical.setCellValueFactory(new PropertyValueFactory<Transaction, Double>("medical"));
+		colMedical.setCellFactory(EditCell.<Transaction, Double>forTableColumn(new MyDoubleStringConverter()));
+		colMedical.setOnEditCommit(this::colMedical_OnEditCommit);
+		colMedical.getStyleClass().add(columnClass);
+
+		colMisc.setCellValueFactory(new PropertyValueFactory<Transaction, Double>("misc"));
+		colMisc.setCellFactory(EditCell.<Transaction, Double>forTableColumn(new MyDoubleStringConverter()));
+		colMisc.setOnEditCommit(this::colMisc_OnEditCommit);
+		colMisc.getStyleClass().add(columnClass);
+
+		colTotal.setCellValueFactory(new PropertyValueFactory<Transaction, Double>("total"));
+		colTotal.setCellFactory(EditCell.<Transaction, Double>forTableColumn(new MyDoubleStringConverter()));
+		colTotal.getStyleClass().add("total-column");
+
+		setTableEditable();
+	}
+
+	/************************************************/
+	private void setTableEditable() {
+		table.getStyleClass().add("my-table-view");
+
+		table.setEditable(true);
+		// allows the individual cells to be selected
+		table.getSelectionModel().cellSelectionEnabledProperty().set(true);
+		// when character or numbers pressed it will start edit in editable
+		// fields
+		table.setOnKeyPressed(event -> {
+			if (event.getCode().isLetterKey() || event.getCode().isDigitKey()) {
+				editFocusedCell();
+			} else if (event.getCode() == KeyCode.TAB) {
+				table.getSelectionModel().selectNext();
+				event.consume();
+			} else if (event.getCode() == KeyCode.TAB && event.isShiftDown()) {
+				selectPrevious();
+				event.consume();
+			}
+		});
+	}
+
+	/************************************************/
+	@SuppressWarnings("unchecked")
+	private void editFocusedCell() {
+		final TablePosition<Transaction, ?> focusedCell = table.focusModelProperty().get().focusedCellProperty().get();
+		table.edit(focusedCell.getRow(), focusedCell.getTableColumn());
+	}
+
+	/************************************************/
+	@SuppressWarnings("unchecked")
+	private void selectPrevious() {
+		if (table.getSelectionModel().isCellSelectionEnabled()) {
+			TablePosition<Transaction, ?> pos = table.getFocusModel().getFocusedCell();
+			if (pos.getColumn() - 1 >= 0) {
+				// go to previous row
+				table.getSelectionModel().select(pos.getRow(), getTableColumn(pos.getTableColumn(), -1));
+			} else if (pos.getRow() < table.getItems().size()) {
+				// wrap to end of previous row
+				table.getSelectionModel().select(pos.getRow()
+						- 1,
+						table.getVisibleLeafColumn(table.getVisibleLeafColumns().size()
+								- 1));
+			}
+		} else {
+			int focusIndex = table.getFocusModel().getFocusedIndex();
+			if (focusIndex == -1) {
+				table.getSelectionModel().select(table.getItems().size() - 1);
+			} else if (focusIndex > 0) {
+				table.getSelectionModel().select(focusIndex - 1);
+			}
+		}
+	}
+
+	/************************************************/
+	private TableColumn<Transaction, ?> getTableColumn(final TableColumn<Transaction, ?> column, int offset) {
+		int columnIndex = table.getVisibleLeafIndex(column);
+		int newColumnIndex = columnIndex + offset;
+		return table.getVisibleLeafColumn(newColumnIndex);
+	}
+
+	/************************************************/
+	@SuppressWarnings("unchecked")
+	public void colDate_OnEditCommit(Event e) {
+		TableColumn.CellEditEvent<Transaction, Date> cellEdit;
+		cellEdit = (TableColumn.CellEditEvent<Transaction, Date>) e;
+		Transaction transaction = cellEdit.getRowValue();
+
+		transaction.setDate(cellEdit.getNewValue());
+		if (!WriteData.updateRecord(DB.COL_TRANSACTIONS_DATE, transaction)) {
+			transaction.setDate(cellEdit.getOldValue());
+		}
+		table.refresh();
+	}
+
+	/************************************************/
+	@SuppressWarnings("unchecked")
+	public void colDescription_OnEditCommit(Event e) {
+		TableColumn.CellEditEvent<Transaction, String> cellEdit;
+		cellEdit = (TableColumn.CellEditEvent<Transaction, String>) e;
+		Transaction transaction = cellEdit.getRowValue();
+
+		transaction.setDescription(cellEdit.getNewValue());
+		if (!WriteData.updateRecord(DB.COL_TRANSACTIONS_DESCRIPTION, transaction)) {
+			transaction.setDescription(cellEdit.getOldValue());
+		}
+		table.refresh();
+	}
+
+	/************************************************/
+	@SuppressWarnings("unchecked")
+	public void colGas_OnEditCommit(Event e) {
+		TableColumn.CellEditEvent<Transaction, Double> cellEdit;
+		cellEdit = (TableColumn.CellEditEvent<Transaction, Double>) e;
+
+		if (cellEdit.getNewValue() != null) {
+			Transaction transaction = cellEdit.getRowValue();
+			transaction.setGas(cellEdit.getNewValue());
+			if (!WriteData.updateRecord(DB.COL_TRANSACTIONS_GAS, transaction)) {
+				transaction.setGas(cellEdit.getOldValue());
+			}
+			getTotals();
+		}
+		table.refresh();
+	}
+
+	/************************************************/
+	@SuppressWarnings("unchecked")
+	public void colService_OnEditCommit(Event e) {
+		TableColumn.CellEditEvent<Transaction, Double> cellEdit;
+		cellEdit = (TableColumn.CellEditEvent<Transaction, Double>) e;
+
+		if (cellEdit.getNewValue() != null) {
+			Transaction transaction = cellEdit.getRowValue();
+
+			transaction.setService(cellEdit.getNewValue());
+			if (!WriteData.updateRecord(DB.COL_TRANSACTIONS_SERVICE, transaction)) {
+				transaction.setService(cellEdit.getOldValue());
+			}
+			getTotals();
+		}
+		table.refresh();
+	}
+
+	/************************************************/
+	@SuppressWarnings("unchecked")
+	public void colJohn_OnEditCommit(Event e) {
+		TableColumn.CellEditEvent<Transaction, Double> cellEdit;
+		cellEdit = (TableColumn.CellEditEvent<Transaction, Double>) e;
+
+		if (cellEdit.getNewValue() != null) {
+			Transaction transaction = cellEdit.getRowValue();
+
+			transaction.setJohn(cellEdit.getNewValue());
+			if (!WriteData.updateRecord(DB.COL_TRANSACTIONS_JOHN, transaction)) {
+				transaction.setJohn(cellEdit.getOldValue());
+			}
+			getTotals();
+		}
+		table.refresh();
+	}
+
+	/************************************************/
+	@SuppressWarnings("unchecked")
+	public void colMedical_OnEditCommit(Event e) {
+		TableColumn.CellEditEvent<Transaction, Double> cellEdit;
+		cellEdit = (TableColumn.CellEditEvent<Transaction, Double>) e;
+
+		if (cellEdit.getNewValue() != null) {
+			Transaction transaction = cellEdit.getRowValue();
+
+			transaction.setMedical(cellEdit.getNewValue());
+			if (!WriteData.updateRecord(DB.COL_TRANSACTIONS_MEDICAL, transaction)) {
+				transaction.setMedical(cellEdit.getOldValue());
+			}
+			getTotals();
+		}
+		table.refresh();
+	}
+
+	/************************************************/
+	@SuppressWarnings("unchecked")
+	public void colMisc_OnEditCommit(Event e) {
+		TableColumn.CellEditEvent<Transaction, Double> cellEdit;
+		cellEdit = (TableColumn.CellEditEvent<Transaction, Double>) e;
+
+		if (cellEdit.getNewValue() != null) {
+			Transaction transaction = cellEdit.getRowValue();
+
+			transaction.setMisc(cellEdit.getNewValue());
+			if (!WriteData.updateRecord(DB.COL_TRANSACTIONS_MISC, transaction)) {
+				transaction.setMisc(cellEdit.getOldValue());
+			}
+			getTotals();
+		}
+		table.refresh();
+	}
+
+	/******************************************/
+	public void updateTotals(List<Double> totalsList) {
+		if (totalsList.size() == 5) {
+			totalGas.setText(new DecimalFormat("#.0#").format(totalsList.get(0)));
+			totalService.setText(new DecimalFormat("#.0#").format(totalsList.get(1)));
+			totalJohn.setText(new DecimalFormat("#.0#").format(totalsList.get(2)));
+			totalMedical.setText(new DecimalFormat("#.0#").format(totalsList.get(3)));
+			totalMisc.setText(new DecimalFormat("#.0#").format(totalsList.get(4)));
+		}
+	}
+
+	/******************************************/
+	public void getTransactions() {
+		@SuppressWarnings("unchecked")
+		Task<ObservableList<Transaction>> task = new GetAllTransactions();
+		table.itemsProperty().bind(task.valueProperty());
+
+		new Thread(task).start();
+	}
+
+	public void getTotals() {
+		Task<List<Double>> task = new GetTotals();
+
+		task.setOnSucceeded(e -> {
+			List<Double> totals = task.valueProperty().get();
+			updateTotals(totals);
+		});
+
+		new Thread(task).start();
+	}
+}
+
+/******************************************/
+@SuppressWarnings("rawtypes")
+class GetAllTransactions extends Task {
+	public ObservableList<Transaction> call() {
+		return FXCollections.observableArrayList(ReadData.getTransactions(DB.ORDER_BY_ASC));
+	}
+}
+
+class GetTotals extends Task<List<Double>> {
+	public List<Double> call() {
+		return ReadData.getTotals();
+	}
+}

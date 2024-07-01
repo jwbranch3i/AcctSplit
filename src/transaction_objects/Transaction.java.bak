@@ -1,0 +1,170 @@
+package transactionObjects;
+
+import java.util.Date;
+
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
+public class Transaction
+{
+	private int _id;
+	private SimpleObjectProperty<Date> date = new SimpleObjectProperty<Date>();
+	private SimpleStringProperty description = new SimpleStringProperty("");
+	private SimpleObjectProperty<Double> gas = new SimpleObjectProperty<Double>();
+	private SimpleDoubleProperty service = new SimpleDoubleProperty(0.0);
+	private SimpleDoubleProperty john = new SimpleDoubleProperty(0.0);
+	private SimpleDoubleProperty medical = new SimpleDoubleProperty(0.0);
+	private SimpleDoubleProperty misc = new SimpleDoubleProperty(0.0);
+	private SimpleDoubleProperty total = new SimpleDoubleProperty(0.0);
+
+	/*********************************************************/
+	public Transaction()
+	{
+	}
+	
+	// ----------------------------------------
+	public int get_id()
+	{
+		return _id;
+	}
+
+	public void set_id(int _id)
+	{
+		this._id = _id;
+	}
+
+	// ----------------------------------------
+	// Date getters and setters
+	// ----------------------------------------
+	public Date getDate()
+	{
+		return date.get();
+	}
+
+	public void setDate(Date date)
+	{
+		this.date.set(date);
+	}
+	
+	public ObjectProperty<Date> dateProperty()
+	{
+		return this.date;
+	}
+	
+	// ----------------------------------------
+	public void setDescription(String disc)
+	{
+		this.description.set(disc);
+	}
+
+	public String getDescription()
+	{
+		return description.get();
+	}
+	
+	public StringProperty descriptionProperty()
+	{
+		return this.description;
+	}
+
+	// ----------------------------------------
+	public double getGas()
+	{
+		return gas.get();
+	}
+
+	public void setGas(double gas)
+	{
+		this.gas.set(gas);
+		updateTotal();
+	}
+	
+	
+	public ObjectProperty<Double> gasProperty()
+	{
+		return this.gas;
+	}
+
+	// ----------------------------------------
+	public double getService()
+	{
+		return service.get();
+	}
+
+	public void setService(double service)
+	{
+		this.service.set(service);
+		updateTotal();
+	}
+
+	// ----------------------------------------
+	public double getJohn()
+	{
+		return john.get();
+	}
+
+	public void setJohn(double john)
+	{
+		this.john.set(john);
+		updateTotal();
+	}
+
+
+	// ----------------------------------------
+	public double getMedical()
+	{
+		return medical.get();
+	}
+
+	public void setMedical(double med)
+	{
+		this.medical.set(med);
+		updateTotal();
+	}
+
+	// ----------------------------------------
+	public double getMisc()
+	{
+		return misc.get();
+	}
+	
+	public void setMisc(double misc)
+	{
+		this.misc.set(misc);
+		updateTotal();
+	}
+
+	// ----------------------------------------
+	public double getTotal()
+	{
+		return total.get();
+	}
+	
+	
+
+	// ----------------------------------------
+	protected void updateTotal()
+	{
+		total.set(getGas() + getService() + getJohn() +
+				getMedical() + getMisc());		
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ID= " + get_id()
+		    + " Date= " + getDate()
+		    + " Disc= " + getDescription()
+            + " gas= " + getGas()
+            + " service= " + getService()
+            + " john= " + getJohn()
+            + " medical= " + getMedical()
+            + " misc= " + getMisc()
+            + " total= " + getTotal() +"]";
+	}
+
+	
+}

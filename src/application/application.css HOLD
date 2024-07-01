@@ -1,0 +1,117 @@
+.root {
+  -fx-background-color: gray;
+  background-color: gray;
+}
+
+/******************* Tableview*************************************/
+
+/* set background color for select row in my-table-view */
+
+.my-table-view {
+  -fx-border-color: black;
+  -fx-border-width: 2pt;
+  border-color: black;
+  border-width: 2pt;
+}
+
+
+.my-table-view .column-header {
+  -fx-background-color: yellow;
+  background-color: yellow;
+}
+
+/* top right corner of the header section above the scroll bars */
+.my-table-view .column-header-background .filler {
+  -fx-background-color: yellow;
+  background-color: yellow;
+}
+
+.my-table-view .table-cell {
+  -fx-border-color: black;
+  -fx-border-style: solid;
+  -fx-font-size: 15px;
+  font-size: 15px; /* Add the 'font-size' property */
+  border-color: black;
+  border-style: solid; /* Add the 'border-style' property */
+}
+
+
+#numLabel {
+  -fx-background-color: yellow;
+  -fx-border-color: black;
+  background-color: yellow;
+  border-color: black;
+}
+
+#numValue {
+  -fx-background-color: white;
+  background-color: white;
+  -fx-border-color: black;
+  border-color: black;
+  -fx-border-width: 2pt;
+  border-width: 2pt;
+}
+
+.table-row-cell:selected {
+  -fx-background-color: blue ;
+  background-color: blue;
+}
+
+.table-row-cell:odd {
+  -fx-background-color: lightgray;
+  background-color: lightgray;
+}
+
+.table-row-cell:even {
+  -fx-background-color: white;
+  background-color: white;
+}
+
+
+#totalGridPane {
+  -fx-border-color: black;
+  border-color: black;
+  -fx-border-width: 2pt;
+  border-width: 2pt;
+}
+
+
+.total-grid-pane .text-field {
+  -fx-font-size: 15px;
+  font-size: 15px;
+}
+
+#totalLabel {
+  -fx-background-color: yellow;
+  background-color: yellow;
+  -fx-font-weight: bold;
+  font-weight: bold;
+  -fx-border-color: black;
+  border-color: black;
+}
+
+
+#totalText {
+  -fx-font-weight: bold;
+  font-weight: bold /* Add the 'font-weight' property */;
+}
+
+#totalValue {
+  -fx-background-color: white;
+  background-color: white;
+  -fx-font-weight: bold;
+  font-weight: bold;
+  -fx-border-color: black;
+  border-color: black;
+}
+
+
+
+.input-vbox {
+  -fx-border-color: black;
+  border-color: black;
+  -fx-border-width: 2pt;
+  border-width: 2pt;
+  -fx-background-color: white;
+  background-color: white;
+}

@@ -1,0 +1,61 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "java",
+			"name": "MyLauncher",
+			"request": "launch",
+			"mainClass": "application.MyLauncher",
+			"projectName": "Acct_fb7d44a3"
+		},
+		{
+			"type": "java",
+			"name": "MyLauncher",
+			"request": "launch",
+			"mainClass": "application.MyLauncher",
+			"projectName": "Acct_72d62e2c"
+		},
+		{
+			"type": "java",
+			"name": "MyLauncher",
+			"request": "launch",
+			"mainClass": "application.MyLauncher",
+			"projectName": "Acct_dde68f04"
+		},
+		{
+			"type": "java",
+			"name": "Acct",
+			"request": "launch",
+			"mainClass": "application.Acct",
+			"projectName": "Acct_dde68f04"
+		},
+		{
+			"type": "java",
+			"name": "Acct",
+			"request": "launch",
+			"mainClass": "Acct",
+			"projectName": "Acct_dde68f04"
+		},
+		{
+			"type": "java",
+			"name": "App",
+			"request": "launch",
+			"mainClass": "application.App",
+			"projectName": "Acct_dde68f04"
+		},
+		{
+			"vmArgs": "--module-path \"c:/JavaFX/javafx-sdk-21.0.3/lib\" --add-modules javafx.controls,javafx.fxml",
+			"type": "java",
+			"name": "Launch Current File",
+			"request": "launch",
+			"mainClass": "${file}"
+		},
+		{
+			"vmArgs": "--module-path \"c:/JavaFX/javafx-sdk-21.0.3/lib\" --add-modules javafx.controls,javafx.fxml",
+			"type": "java",
+			"name": "Launch App",
+			"request": "launch",
+			"mainClass": "App"
+		}
+	]
+}
